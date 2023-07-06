@@ -16,5 +16,10 @@ public class SpDocMetaService {
         spDocMetaRepositeRepository.save(doc);
         return true;
     }
+
+
+    public boolean existDocItem (String refDocType, String refDoc, String refDocPart, String refDocVersion) {
+        return (spDocMetaRepositeRepository.findByrefDocTypeAndRefDocAndRefDocPartAndRefDocVersion(refDocType, refDoc, refDocPart, refDocVersion).size()>0)? true : false;
+    }
     
 }

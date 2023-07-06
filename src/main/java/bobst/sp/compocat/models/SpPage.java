@@ -1,7 +1,5 @@
 package bobst.sp.compocat.models;
 
-import java.util.UUID;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
@@ -9,8 +7,8 @@ import jakarta.persistence.Id;
 public class SpPage {
     
     @Id
-    private UUID idPage;
-    private UUID idDoc;
+    private String idPage;  //UUID string
+    private String idDoc;   //UUID string
     private Integer pageOrder;
 
     
@@ -19,19 +17,19 @@ public class SpPage {
 
 
     //Setteurs & Getteurs
-    public UUID getIdPage() {
+    public String getIdPage() {
         return idPage;
     }
 
-    public void setIdPage(UUID idPage) {
+    public void setIdPage(String idPage) {
         this.idPage = idPage;
     }
 
-    public UUID getIdDoc() {
+    public String getIdDoc() {
         return idDoc;
     }
 
-    public void setIdDoc(UUID idDoc) {
+    public void setIdDoc(String idDoc) {
         this.idDoc = idDoc;
     }
 

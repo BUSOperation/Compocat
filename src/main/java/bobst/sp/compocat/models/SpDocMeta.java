@@ -10,13 +10,13 @@ import jakarta.persistence.Id;
 public class SpDocMeta {
 
     @Id
-    private UUID idDoc;
+    private String idDoc;  //UUID toString;
 
     private String refDocType;
     private String refDoc;
     private String refDocPart;
     private String refDocVersion;
-    private UUID langCode;
+    private String langCode; //UUID string;
     private String initialCode;
     private String title;
     private String sub_title;
@@ -32,24 +32,33 @@ public class SpDocMeta {
 
     
     public SpDocMeta(String refDoc) {
-        this.idDoc = UUID.randomUUID();
+        this.idDoc = UUID.randomUUID().toString();
+        
         this.refDoc = refDoc;
     }
 
+    public SpDocMeta(String refDocType, String refDoc, String refDocPart, String refDocVersion) {
+        this.idDoc = UUID.randomUUID().toString();
+        this.refDocType = refDocType;
+        this.refDoc = refDoc;
+        this.refDocPart = refDocPart;
+        this.refDocVersion = refDocVersion;
+    }
+
     //Getteurs & Setteurs -------------------------------------------------
-    public void setidDoc(UUID idDoc) {
+    public void setIdDoc(String idDoc) {
         this.idDoc = idDoc;
     }
 
-    public UUID getidDoc() {
+    public String getIdDoc() {
         return idDoc;
     }
 
-    public void setrefDocType(String refDocType) {
+    public void setRefDocType(String refDocType) {
         this.refDocType = refDocType;
     }
 
-    public String getrefDocType() {
+    public String getRefDocType() {
         return refDocType;
     }
 
@@ -84,12 +93,12 @@ public class SpDocMeta {
     }
 
 
-    public UUID getLangCode() {
+    public String getLangCode() {
         return langCode;
     }
 
 
-    public void setLangCode(UUID langCode) {
+    public void setLangCode(String langCode) {
         this.langCode = langCode;
     }
 

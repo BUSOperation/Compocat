@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import bobst.sp.compocat.services.SpBsaService;
 import bobst.sp.compocat.services.SpPageService;
 
 
@@ -18,6 +19,9 @@ public class CaptureController {
 
     @Autowired
     SpPageService spPageService;
+
+    @Autowired
+    SpBsaService spBsaService;
 
     @GetMapping("/begin")
     public String getBegin() {
@@ -37,7 +41,7 @@ public class CaptureController {
     public String processXml(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
         //String status = status_error;
         try {
-            
+            spBsaService.uploadXml(file);            
             //catPageContentService.uploadXml(file);             
             //status = "done";
         } catch (Exception e) {

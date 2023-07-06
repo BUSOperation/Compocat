@@ -51,12 +51,13 @@ public class WatchCaptureService {
                         String fileName = event.context().toString();
                         URI url = null;
 
-                        if (fileName.contains("test")) {
-                            System.out.println("detect ok");
-                            url = URI.create(SERVER_CAPTURE + "begin");
+                        if (fileName.contains(".xml")) {
+                            System.out.println("detection xml ok");
+                            url = URI.create(SERVER_CAPTURE + "captureD43Xml");
                         }
 
 
+                        /*
                         if (fileName.contains(".txt")) {
                             if (fileName.contains("E43.txt")) {
                                 url = URI.create(SERVER_CAPTURE + "captureE43");
@@ -66,6 +67,7 @@ public class WatchCaptureService {
                         }
                         if (fileName.contains(".zip")) url = URI.create(SERVER_CAPTURE + "captureZip");
                         if (fileName.contains(".xml")) url = URI.create(SERVER_CAPTURE + "captureXml");
+                         */
 
                         File file = new File(DIR_CAPTURE + fileName);   
                         
