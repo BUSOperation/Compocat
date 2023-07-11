@@ -10,6 +10,7 @@ public class SpItem {
     
     @Id
     private String idItem;      //UUID string
+    
     private String itemName;
     private String descriptionFr;
     private String descriptionEn;

@@ -9,6 +9,7 @@ import bobst.sp.compocat.models.SpItem;
 public interface SpItemRepository extends CrudRepository<SpItem, String>{
 
     public List<SpItem> findByItemNameAndDescriptionEn(String itemName, String descriptionEn);
+    public SpItem findByIdItem(String idItem);
 
     
 }

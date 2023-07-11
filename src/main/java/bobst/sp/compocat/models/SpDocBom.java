@@ -2,17 +2,23 @@ package bobst.sp.compocat.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 
 @Entity
+@IdClass(SPDocBomCompositeKey.class)
 public class SpDocBom {
 
     @Id
     private String idDoc;           //UUID string
+    @Id
     private String idItemParent;    //UUID string
+    @Id
     private String idItem;          //UUID string
-    private boolean toc;
+    @Id
     private Integer itemOrder;
 
+    private boolean toc;
+    
     public SpDocBom() {}
 
     public SpDocBom(String idDoc, String idItemParent, String idItem, boolean toc, Integer itemOrder) {

@@ -2,12 +2,15 @@ package bobst.sp.compocat.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 
 @Entity
+@IdClass(SpLinkItemDrawingCompositeKey.class)
 public class SpLinkItemDrawing {
     
     @Id    
     private String idItem;      //UUID string
+    @Id
     private String idDrawing;       //UUID string
 
     public SpLinkItemDrawing() {}

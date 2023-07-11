@@ -9,5 +9,6 @@ import bobst.sp.compocat.models.SpDocBom;
 public interface SpDocBomRepository extends CrudRepository<SpDocBom, String> {
 
     public List<SpDocBom> findByIdDocAndIdItemParentAndIdItemAndItemOrder(String idDoc, String idItemParent, String idItem, Integer itemOrder);
+    public List<SpDocBom> findByIdDoc(String idDoc);
     
 }
