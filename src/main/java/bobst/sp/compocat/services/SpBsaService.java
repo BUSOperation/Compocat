@@ -43,9 +43,22 @@ public class SpBsaService {
     @Autowired
     SpLinkItemDrawingRepository spLinkItemDrawingRepository;
 
+    @Autowired
+    SpItemService itemService;
+
+    @Autowired
+    SpDocBomService docBomService;
+
+    @Autowired
+    SpDocMetaService docMetaService;
+
+    @Autowired
+    SpLinkItemDrawingService linkItemDrawingService;
+
     private int cptItem = 0;
     private SpItem item;
     private SpItem itemParent;
+    private SpItem itemM, itemPM, itemP;
     private SpDocMeta docMeta;
 
     public void uploadXml(MultipartFile file) throws ParserConfigurationException, SAXException, IllegalStateException, IOException {
@@ -272,6 +285,219 @@ public class SpBsaService {
         }
         
     }
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+   
+   public void uploadPVXml (MultipartFile file) throws ParserConfigurationException, SAXException, IllegalStateException, IOException {
+
+    //créer l'objet docMeta pour le document D87
+    String fName = file.getOriginalFilename().substring(0,file.getOriginalFilename().lastIndexOf("."));
+    String[] tab = fName.split("_");
+    this.docMeta = docMetaService.createDocMeta(tab[0], tab[1]+"_"+tab[2], tab[3], tab[4], "", tab[2], "", "", "", "", "", "");
+    
+    //créer un objet item
+    this.item = itemService.createItem(tab[1],"LOCALISATION DES PARTIES","LOCATION OF SECTIONS","");
+    this.itemM = this.item;
+
+    //créer un objet docBom
+    docBomService.createDocBom(this.docMeta.getIdDoc(), "", this.item.getIdItem(), true, this.cptItem);
+
+    //créer un objet doc drawing pour page 0
+    SpDocMeta docMetaD;
+    docMetaD = docMetaService.createDocMeta("", docMetaService.getNormalizedDocName(this.docMeta) + "_" + "0", 
+                                "", "", "", "", "", "",
+                                "", "", "", "");
+
+    //créer un objet link drawing item si numpage
+    linkItemDrawingService.createLinkItemDrawing(this.item.getIdItem(), docMetaD.getIdDoc());
+    
+    
+    File xmlFile = new File("src/main/resources/" + file.getOriginalFilename());
+
+
+     try (OutputStream os = new FileOutputStream(xmlFile)) {
+         os.write(file.getBytes());
+         os.close();
+     }
+     
+     // Instantiate the Factory
+     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+     try {
+         // parse XML file
+         DocumentBuilder db = dbf.newDocumentBuilder();
+         Document doc = db.parse(xmlFile);
+         doc.getDocumentElement().normalize();
+         
+         NodeList listE = doc.getChildNodes(); 
+         analyzePVXml(listE);
+
+     } catch ( IOException e) {
+            e.printStackTrace();
+        }
+           
+   System.out.println("Process PV XML terminé avec succès");
+
+   } //end of uploadPVxml
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+
+   public String[] getAttributesPV(Node node) {
+
+    //0=numpage,1=ident,2=desFr,3=desEn,4=desDe
+    String[] tabAttr = {"","","","",""};
+    for (int j = 0; j < node.getAttributes().getLength(); j++ ) {
+                    
+        String attrValue = node.getAttributes().item(j).getNodeValue();
+        String attrName = node.getAttributes().item(j).getNodeName();
+        
+        if (attrName == "numpage") {tabAttr[0] = attrValue;}  
+        if (attrName == "ident") {tabAttr[1] = attrValue;}
+        if (attrName == "desfr") {tabAttr[2] = attrValue;}
+        if (attrName == "desan") {tabAttr[3] = attrValue;}
+        if (attrName == "desal") {tabAttr[4] = attrValue;}
+
+    }
+
+    return tabAttr;
+
+   } 
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+   public void analyzePVXml(NodeList nodeList) {
+
+    for (int i = 0; i < nodeList.getLength(); i++) {
+
+        Node node = nodeList.item(i);
+
+        //test si Element
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+            if (node.getNodeName().equals("partie_machine")) {
+                //gestion de l'élement partie_machine
+                if (node.hasAttributes()) {
+                    //0=numpage,1=ident,2=desFr,3=desEn,4=desDe
+                    String[] tabAttr = getAttributesPV(node);
+
+                    if (!tabAttr[1].equals("")) {
+                        //traitement uniquement si ident existe
+  
+                        //créer un objet item
+                        this.item = itemService.createItem(tabAttr[1], tabAttr[2], tabAttr[3], tabAttr[4]);
+                        this.itemPM = this.item;
+    
+                        //créer un objet docBom
+                        this.cptItem++;
+                        docBomService.createDocBom(this.docMeta.getIdDoc(), this.itemM.getIdItem(), this.item.getIdItem(), true, this.cptItem);
+
+                        String numPage = tabAttr[0];
+                        if (!numPage.equals("")) {
+
+                            //créer un objet doc drawing si numpage
+                            SpDocMeta docMetaD;
+                            docMetaD = docMetaService.createDocMeta("", docMetaService.getNormalizedDocName(this.docMeta) + "_" + numPage, 
+                                                        "", "", "", "", "", "",
+                                                        "", "", "", "");
+
+                            //créer un objet link drawing item si numpage
+                            linkItemDrawingService.createLinkItemDrawing(this.item.getIdItem(), docMetaD.getIdDoc());
+                            
+                        }
+                    }
+
+                }
+
+            }
+
+
+
+            if (node.getNodeName().equals("page")) {
+                //gestion de l'élement page
+                if (node.hasAttributes()) {
+                    //0=numpage,1=ident,2=desFr,3=desEn,4=desDe
+                    String[] tabAttr = getAttributesPV(node);
+
+                    if (!tabAttr[1].equals("")) {
+                        //traitement uniquement si ident existe
+  
+                        //créer un objet item
+                        this.item = itemService.createItem(tabAttr[1], tabAttr[2], tabAttr[3], tabAttr[4]);
+                        this.itemP = this.item;
+
+                        //créer un objet docBom
+                        this.cptItem++;
+                        docBomService.createDocBom(this.docMeta.getIdDoc(), this.itemPM.getIdItem(), this.item.getIdItem(), true, this.cptItem);
+
+                        String numPage = tabAttr[0];
+                        if (!numPage.equals("")) {
+
+                            //créer un objet doc drawing si numpage
+                            SpDocMeta docMetaD;
+                            docMetaD = docMetaService.createDocMeta("", docMetaService.getNormalizedDocName(this.docMeta) + "_" + numPage, 
+                                                        "", "", "", "", "", "",
+                                                        "", "", "", "");
+
+                            //créer un objet link drawing item si numpage
+                            linkItemDrawingService.createLinkItemDrawing(this.item.getIdItem(), docMetaD.getIdDoc());
+                            
+                        }
+                    }
+
+                }
+
+            }
+
+
+            if (node.getNodeName().equals("piece")) {
+                //gestion de l'élement piece
+
+                String id,numident,numbobst,desfr,desan,desal,val,remarque,goc;
+                id=numident=numbobst=desfr=desan=desal=val=remarque=goc="";
+                NodeList pieceAttrList = node.getChildNodes();
+
+                for (int j=0;j<pieceAttrList.getLength();j++) {
+                    Node pieceAttrNode = pieceAttrList.item(j);
+                    if ( (pieceAttrNode.getNodeType() == Node.ELEMENT_NODE) &
+                         (pieceAttrNode.hasChildNodes()) ) {
+
+                            if (!pieceAttrNode.getFirstChild().getNodeValue().isBlank())  {
+
+                                if(pieceAttrNode.getNodeName().equals("id")) {id=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("numident")) {numident=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("numbobst")) {numbobst=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("desfr")) {desfr=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("desan")) {desan=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("desal")) {desal=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("val")) {val=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("remarque")) {remarque=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("GOC")) {goc=pieceAttrNode.getFirstChild().getNodeValue();}
+
+                            }
+                    
+                    }
+                }
+
+                //créer un objet item pour la pièce
+                SpItem itemp = itemService.createItem(numbobst,desfr,desan,desal);
+    
+                //créer un objet docBom
+                this.cptItem++;
+                docBomService.createDocBom(this.docMeta.getIdDoc(), this.itemP.getIdItem(), itemp.getIdItem(), true, this.cptItem);
+
+                             
+            }
+
+
+                        
+        }
+                
+        if (nodeList.item(i).hasChildNodes()) {
+                analyzePVXml(nodeList.item(i).getChildNodes());
+        } 
+         
+    }
+
+   }
 
 //----------------------------------------------------------------------------------------------------------------------------------------
 

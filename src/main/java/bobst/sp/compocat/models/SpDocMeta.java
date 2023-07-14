@@ -32,10 +32,10 @@ public class SpDocMeta {
 
     
     public SpDocMeta(String refDoc) {
-        this.idDoc = UUID.randomUUID().toString();
-        
+        this.idDoc = UUID.randomUUID().toString();        
         this.refDoc = refDoc;
     }
+    
 
     public SpDocMeta(String refDocType, String refDoc, String refDocPart, String refDocVersion) {
         this.idDoc = UUID.randomUUID().toString();
@@ -44,6 +44,26 @@ public class SpDocMeta {
         this.refDocPart = refDocPart;
         this.refDocVersion = refDocVersion;
     }
+    
+
+    public SpDocMeta(String refDocType, String refDoc, String refDocPart, String refDocVersion, String langCode,
+            String initialCode, String title, String sub_title, String compl_info, String status, String validityStart,
+            String otp) {
+        this.idDoc = UUID.randomUUID().toString();
+        this.refDocType = refDocType;
+        this.refDoc = refDoc;
+        this.refDocPart = refDocPart;
+        this.refDocVersion = refDocVersion;
+        this.langCode = langCode;
+        this.initialCode = initialCode;
+        this.title = title;
+        this.sub_title = sub_title;
+        this.compl_info = compl_info;
+        this.status = status;
+        this.validityStart = validityStart;
+        this.otp = otp;
+    }
+
 
     //Getteurs & Setteurs -------------------------------------------------
     public void setIdDoc(String idDoc) {

@@ -15,7 +15,9 @@ public class ViewerController {
     @GetMapping("/test")
     public String getTest() {
 
-        spBsaService.getBomStructure("8b238c1e-e124-430a-b35a-9bb64c75c8ea");
+        //"0bc4065e-6563-4628-b3dd-626eaec32793"  BSA05810102_D87
+        //"8b238c1e-e124-430a-b35a-9bb64c75c8ea"  BSA03802000066_D87
+        spBsaService.getBomStructure("0bc4065e-6563-4628-b3dd-626eaec32793");
 
 
 

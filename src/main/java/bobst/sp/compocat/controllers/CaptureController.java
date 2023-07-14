@@ -51,6 +51,19 @@ public class CaptureController {
         return "redirect:/capture";
     }
 
+    @PostMapping("/capturePVXml")
+    public String processPVXml(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
+        //String status = status_error;
+        try {
+            spBsaService.uploadPVXml(file);            
+            //catPageContentService.uploadXml(file);             
+            //status = "done";
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        //informLog(file,status);
+        return "redirect:/capture";
+    }
 
 
 }

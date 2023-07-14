@@ -40,6 +40,14 @@ public class SpItem {
         this.descriptionEn = descriptionEn;
     }
 
+    public SpItem(String itemName, String descriptionFr, String descriptionEn, String descriptionDe) {
+        this.idItem = UUID.randomUUID().toString();
+        this.itemName = itemName;
+        this.descriptionFr = descriptionFr;
+        this.descriptionEn = descriptionEn;
+        this.descriptionDe = descriptionDe;
+    }
+
     
 
     public String getItemName() {

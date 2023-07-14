@@ -51,11 +51,15 @@ public class WatchCaptureService {
                         String fileName = event.context().toString();
                         URI url = null;
 
-                        if (fileName.contains(".xml")) {
-                            System.out.println("detection xml ok");
+                        if ( (fileName.contains(".xml")) & (fileName.contains("_D43_")) ) {
+                            System.out.println("detection D43 xml ok");
                             url = URI.create(SERVER_CAPTURE + "captureD43Xml");
                         }
 
+                        if ( (fileName.contains(".xml")) & (fileName.contains("_D87_")) ) {
+                            System.out.println("detection PV xml ok");
+                            url = URI.create(SERVER_CAPTURE + "capturePVXml");
+                        }
 
                         /*
                         if (fileName.contains(".txt")) {
