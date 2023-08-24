@@ -10,6 +10,7 @@ public interface SpItemRepository extends CrudRepository<SpItem, String>{
 
     public List<SpItem> findByItemNameAndDescriptionEn(String itemName, String descriptionEn);
     public SpItem findByIdItem(String idItem);
+    public List<SpItem> findByItemName(String itemName);
 
     
 }

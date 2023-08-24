@@ -19,8 +19,20 @@ public class SpItemService {
         List<SpItem> itemList = spItemRepository.findByItemNameAndDescriptionEn(itemName, descriptionEn); 
         if (itemList.size()>0) {
             item = itemList.get(0);
-        } else {
-            item = new SpItem(itemName, descriptionFr, descriptionEn, descriptionDe);
+        } else {            
+            itemList = spItemRepository.findByItemName(itemName);
+            if(itemList.size()>0){
+                item = itemList.get(0);
+                if(!descriptionEn.equals("")) {                    
+                    item.setDescriptionFr(descriptionFr);
+                    item.setDescriptionEn(descriptionEn);
+                    item.setDescriptionDe(descriptionDe);
+                }
+
+            } else {                
+                item = new SpItem(itemName, descriptionFr, descriptionEn, descriptionDe);
+            }
+            //item = new SpItem(itemName, descriptionFr, descriptionEn, descriptionDe);
             spItemRepository.save(item);
         }
 

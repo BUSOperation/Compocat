@@ -48,7 +48,6 @@ public class SpItem {
         this.descriptionDe = descriptionDe;
     }
 
-    
 
     public String getItemName() {
         return itemName;

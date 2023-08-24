@@ -61,6 +61,11 @@ public class WatchCaptureService {
                             url = URI.create(SERVER_CAPTURE + "capturePVXml");
                         }
 
+                        if ( (fileName.contains(".xml")) & (fileName.contains("_E43_")) ) {
+                            System.out.println("detection E43 xml ok");
+                            url = URI.create(SERVER_CAPTURE + "captureE43Xml");
+                        }
+
                         /*
                         if (fileName.contains(".txt")) {
                             if (fileName.contains("E43.txt")) {

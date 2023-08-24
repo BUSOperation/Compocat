@@ -18,15 +18,53 @@ public class SpDocBom {
     private Integer itemOrder;
 
     private boolean toc;
+    private String levelParent;
+    private String levelItem;
+    private String repere;
+    private String validity;
     
     public SpDocBom() {}
 
-    public SpDocBom(String idDoc, String idItemParent, String idItem, boolean toc, Integer itemOrder) {
+    /* public SpDocBom(String idDoc, String idItemParent, String idItem, boolean toc, Integer itemOrder) {
         this.idDoc = idDoc;
         this.idItemParent = idItemParent;
         this.idItem = idItem;
         this.toc = toc;
         this.itemOrder = itemOrder;
+    } */
+
+    
+
+    public SpDocBom(String idDoc, String idItemParent, String idItem, boolean toc, Integer itemOrder,
+            String levelParent, String levelItem, String repere, String validity) {
+        this.idDoc = idDoc;
+        this.idItemParent = idItemParent;
+        this.idItem = idItem;
+        this.itemOrder = itemOrder;
+        this.toc = toc;
+        this.levelParent = levelParent;
+        this.levelItem = levelItem;
+        this.repere = repere;
+        this.validity = validity;
+    }
+
+    
+
+
+    public String getLevelParent() {
+        return levelParent;
+    }
+
+    public void setLevelParent(String levelParent) {
+        this.levelParent = levelParent;
+    }
+
+    public String getLevelItem() {
+        return levelItem;
+    }
+
+    public void setLevelItem(String levelItem) {
+        this.levelItem = levelItem;
     }
 
     public String getIdDoc() {
@@ -67,6 +105,22 @@ public class SpDocBom {
 
     public void setItemOrder(Integer itemOrder) {
         this.itemOrder = itemOrder;
+    }
+
+    public String getRepere() {
+        return repere;
+    }
+
+    public void setRepere(String repere) {
+        this.repere = repere;
+    }
+
+    public String getValidity() {
+        return validity;
+    }
+
+    public void setValidity(String validity) {
+        this.validity = validity;
     }
 
 

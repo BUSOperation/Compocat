@@ -23,14 +23,7 @@ public class CaptureController {
     @Autowired
     SpBsaService spBsaService;
 
-    @GetMapping("/begin")
-    public String getBegin() {
-        Integer tst;
-        tst = spPageService.getNbrPageDrawing(null);
-        return ("Begin Compocat1 " + tst);
-    }
-
-
+    
     @GetMapping("/doc")
     public UUID getidDoc() {
         return UUID.randomUUID();
@@ -60,6 +53,17 @@ public class CaptureController {
             //status = "done";
         } catch (Exception e) {
             System.out.println(e);
+        }
+        //informLog(file,status);
+        return "redirect:/capture";
+    }
+
+     @PostMapping("/captureE43Xml")
+     public String processE43Xml(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
+        try {
+            spBsaService.uploadE43Xml(file);
+        } catch (Exception e) {
+            //
         }
         //informLog(file,status);
         return "redirect:/capture";

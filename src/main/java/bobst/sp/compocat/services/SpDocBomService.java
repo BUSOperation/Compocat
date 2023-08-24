@@ -15,14 +15,14 @@ public class SpDocBomService {
     SpDocBomRepository spDocBomRepository;
 
     
-    public SpDocBom createDocBom(String idDoc, String idItemParent, String idItem, boolean toc, Integer itemOrder) {
+    public SpDocBom createDocBom(String idDoc, String idItemParent, String idItem, boolean toc, Integer itemOrder, String levelParent, String levelItem, String repere, String validity) {
         SpDocBom docBom;
         List<SpDocBom> docBomList = spDocBomRepository.findByIdDocAndIdItemParentAndIdItemAndItemOrder(idDoc, idItemParent, idItem, itemOrder);
         if (docBomList.size()>0) {
             docBom = docBomList.get(0);
             //System.out.println("Element Bom existe déjà");
         }  else {
-            docBom = new SpDocBom(idDoc, idItemParent, idItem, toc, itemOrder);
+            docBom = new SpDocBom(idDoc, idItemParent, idItem, toc, itemOrder, levelParent, levelItem, repere, validity);
             //System.out.println("save docbom");
             spDocBomRepository.save(docBom);
         }
