@@ -16,6 +16,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -29,6 +30,21 @@ public class WatchCaptureService {
 
     //@Value("${server.capture}")
     public static final String SERVER_CAPTURE = "http://localhost:8080/";
+
+    public static void sendFileToUrl(File file, URI url) throws ClientProtocolException, IOException {
+
+        HttpEntity entity = MultipartEntityBuilder.create()
+                            .addPart("file", new FileBody(file))
+                            .build();
+                        
+        
+        HttpPost request = new HttpPost(url);
+        request.setEntity(entity);
+    
+        HttpClient client = HttpClientBuilder.create().build();
+        client.execute(request);
+    
+    }
  
     public static void run () throws InterruptedException, IllegalStateException, ParserConfigurationException, SAXException {
         try {
@@ -51,48 +67,97 @@ public class WatchCaptureService {
                         String fileName = event.context().toString();
                         URI url = null;
 
-                        if ( (fileName.contains(".xml")) & (fileName.contains("_D43_")) ) {
-                            System.out.println("detection D43 xml ok");
-                            url = URI.create(SERVER_CAPTURE + "captureD43Xml");
-                        }
+                        if (!fileName.contains(".") & (fileName.contains("_D87_"))) {
+                            //Identify a directory partsView
+                            
+                            System.out.println("detection directory partsview");
 
-                        if ( (fileName.contains(".xml")) & (fileName.contains("_D87_")) ) {
-                            System.out.println("detection PV xml ok");
-                            url = URI.create(SERVER_CAPTURE + "capturePVXml");
-                        }
+                            File dir  = new File(DIR_CAPTURE+fileName);
+                            File[] liste = dir.listFiles();
+                            for(File item : liste){
+                                if(item.isFile())
+                                { 
+                                System.out.format("Nom du fichier: %s%n", item.getName()); 
+                                } 
+                                else if(item.isDirectory()) {
+                                    System.out.format("Nom du répertoir: %s%n", item.getName()); 
+                                    if (item.getName().equals("svg")) {
+                                        File dirSvg = new File(DIR_CAPTURE+fileName+"\\svg");
+                                        File[] listeSvg = dirSvg.listFiles();
+                                        for (File itemSvg : listeSvg) {
+                                            File dest = new File(DIR_CAPTURE+fileName+"\\svg\\"+fileName+"_"+itemSvg.getName());
+                                            if (itemSvg.renameTo(dest)) {
+                                                sendFileToUrl(dest, URI.create(SERVER_CAPTURE + "captureSvg"));
+                                            }
+                                        }                                       
 
-                        if ( (fileName.contains(".xml")) & (fileName.contains("_E43_")) ) {
-                            System.out.println("detection E43 xml ok");
-                            url = URI.create(SERVER_CAPTURE + "captureE43Xml");
-                        }
+                                    }
+                                    
+                                    if (item.getName().equals("xml")) {
+                                        File dirXml = new File(DIR_CAPTURE+fileName+"\\xml");
+                                        File[] listeXml = dirXml.listFiles();
+                                        for (File itemXml : listeXml) {
+                                            sendFileToUrl(itemXml, URI.create(SERVER_CAPTURE + "capturePVXml"));
+                                        }
 
-                        /*
-                        if (fileName.contains(".txt")) {
-                            if (fileName.contains("E43.txt")) {
-                                url = URI.create(SERVER_CAPTURE + "captureE43");
-                            } else {
-                                url = URI.create(SERVER_CAPTURE + "captureBom");
-                            }
-                        }
-                        if (fileName.contains(".zip")) url = URI.create(SERVER_CAPTURE + "captureZip");
-                        if (fileName.contains(".xml")) url = URI.create(SERVER_CAPTURE + "captureXml");
-                         */
-
-                        File file = new File(DIR_CAPTURE + fileName);   
-                        
-                        HttpEntity entity = MultipartEntityBuilder.create()
-                                            .addPart("file", new FileBody(file))
-                                            .build();
                                         
-                        
-                        HttpPost request = new HttpPost(url);
-                        request.setEntity(entity);
-                    
-                        HttpClient client = HttpClientBuilder.create().build();
-                        client.execute(request);
-                       // HttpResponse response = client.execute(request);                        
+                                    }
+                                } 
+                            }
 
+                            //url = URI.create(SERVER_CAPTURE + "captureReprisePV");
+
+                        } else {
+
+
+                            if ( (fileName.contains(".xml")) & (fileName.contains("_D43_")) ) {
+                                System.out.println("detection D43 xml ok");
+                                url = URI.create(SERVER_CAPTURE + "captureD43Xml");
+                            }
+
+                            if ( (fileName.contains(".xml")) & (fileName.contains("_D87_")) ) {
+                                System.out.println("detection PV xml ok");
+                                url = URI.create(SERVER_CAPTURE + "capturePVXml");
+                            }
+
+                            if ( (fileName.contains(".xml")) & (fileName.contains("_E43_")) ) {
+                                System.out.println("detection E43 xml ok");
+                                url = URI.create(SERVER_CAPTURE + "captureE43Xml");
+                            }
+
+                            if ( (fileName.contains(".zip")) & (fileName.contains("_E43_")) ) {
+                                System.out.println("detection E43 zip(svg) ok");
+                                url = URI.create(SERVER_CAPTURE + "captureZip");
+                            }
+
+                            if ( fileName.contains(".svg") ) {
+                                System.out.println("detection svg ok");
+                                url = URI.create(SERVER_CAPTURE + "captureSvg");
+                            }
+
+                            if ( fileName.contains("BOM.csv") ) {
+                                System.out.println("detection Bobst Manchester BOM ok");
+                                url = URI.create(SERVER_CAPTURE + "captureCsv");
+                            }
+
+
+                            
+                            File file = new File(DIR_CAPTURE + fileName);   
+                            
+                            HttpEntity entity = MultipartEntityBuilder.create()
+                                                .addPart("file", new FileBody(file))
+                                                .build();
+                                            
+                            
+                            HttpPost request = new HttpPost(url);
+                            request.setEntity(entity);
+                        
+                            HttpClient client = HttpClientBuilder.create().build();
+                            client.execute(request);
+                        }
+                        
                     }
+
                     key.reset();
                 }
             } catch (IOException e) {

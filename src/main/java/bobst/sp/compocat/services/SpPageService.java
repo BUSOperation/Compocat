@@ -1,5 +1,9 @@
 package bobst.sp.compocat.services;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +32,27 @@ public class SpPageService {
             spPageRepository.save(page);
         }
 
-        return page;
-        
+        return page;       
 
+    }
+
+
+    public File extractJpg(String idPage) throws FileNotFoundException, IOException {
+
+        List<SpPage> listPage = spPageRepository.findByIdPage(idPage);
+        if (listPage.size()>0) {
+            SpPage page = listPage.get(0);
+            String pathName = "src/main/resources/Quanos/"+idPage+".jpg";
+            File f = new File(pathName);
+        
+            try (FileOutputStream fos = new FileOutputStream(pathName)) {
+            fos.write(page.getFileJpg());
+            }
+
+            return f;
+        } else {
+            return null;
+        }
     }
 
 

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -669,7 +668,7 @@ public class SpBsaService {
                             SpPage pg1;
                             pg1 = pageService.createPage(docMetaD.getIdDoc(), docMetaD.getIdDoc()+"_1");
 
-                            //créer un objet page content
+                            //créer un objet page contentM
                             pageContentService.createPageContent(pg1.getIdPage(), this.item.getIdItem(), tabAttr[1], "I");
                             
                         }

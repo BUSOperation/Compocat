@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import bobst.sp.compocat.services.SpBsaService;
+import bobst.sp.compocat.services.SpGenService;
 import bobst.sp.compocat.services.SpPageService;
+import bobst.sp.compocat.services.SpSvgService;
 
 
 @RestController
@@ -22,6 +24,12 @@ public class CaptureController {
 
     @Autowired
     SpBsaService spBsaService;
+
+    @Autowired
+    SpSvgService spSvgService;
+
+    @Autowired
+    SpGenService spGenService;
 
     
     @GetMapping("/doc")
@@ -68,6 +76,53 @@ public class CaptureController {
         //informLog(file,status);
         return "redirect:/capture";
     }
+    
+    
+    @PostMapping("/captureZip")
+     public String processZip(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
+        try {
+            spSvgService.uploadZip(file);
+        } catch (Exception e) {
+        }
+        //informLog(file,status);
+        return "redirect:/capture";
+    }
+
+    @PostMapping("/captureSvg")
+     public String processSvg(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
+        try {
+            spSvgService.uploadSvg(file);
+        } catch (Exception e) {
+        }
+        //informLog(file,status);
+        return "redirect:/capture";
+    }
+
+    
+    @PostMapping("/captureReprisePV")
+     public String processPartsView(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
+        try {
+            System.out.println("skldfé");
+            //spRepriseService.uploadRepository(file);
+        } catch (Exception e) {
+        }
+        //informLog(file,status);
+        return "redirect:/capture";
+    }
+
+    
+    @PostMapping("/captureCsv")
+     public String processCsv(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
+        try {
+            System.out.println("processCsv");
+            spGenService.uploadCsv(file);
+        } catch (Exception e) {
+        }
+        //informLog(file,status);
+        return "redirect:/capture";
+    }
+
+
 
 
 }

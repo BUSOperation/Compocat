@@ -1,9 +1,11 @@
 package bobst.sp.compocat.models;
 
-import java.sql.Blob;
+
+import org.hibernate.annotations.Type;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 
 @Entity
 public class SpPage {
@@ -14,10 +16,10 @@ public class SpPage {
     private String idDrawing;   //UUID string
     private String page_name;
     private Integer pageOrder;
-    private Blob fileSvg;
-    private Blob fileJpg;
-    private Blob filePdf;
-    private Blob fileSen;
+    
+    private byte[] fileSvg;   
+    private byte[] fileJpg;   
+    private byte[] fileSen;
 
     
     //Constructors
@@ -50,44 +52,27 @@ public class SpPage {
         this.page_name = page_name;
     }
 
+    
+    
 
-    public Blob getFileSvg() {
+
+    public byte[] getFileSvg() {
         return fileSvg;
     }
 
 
-    public void setFileSvg(Blob fileSvg) {
+    public void setFileSvg(byte[] fileSvg) {
         this.fileSvg = fileSvg;
     }
 
 
-    public Blob getFileJpg() {
+    public byte[] getFileJpg() {
         return fileJpg;
     }
 
 
-    public void setFileJpg(Blob fileJpg) {
+    public void setFileJpg(byte[] fileJpg) {
         this.fileJpg = fileJpg;
-    }
-
-
-    public Blob getFilePdf() {
-        return filePdf;
-    }
-
-
-    public void setFilePdf(Blob filePdf) {
-        this.filePdf = filePdf;
-    }
-
-
-    public Blob getFileSen() {
-        return fileSen;
-    }
-
-
-    public void setFileSen(Blob fileSen) {
-        this.fileSen = fileSen;
     }
 
 
@@ -107,6 +92,16 @@ public class SpPage {
 
     public void setIdDrawing(String idDrawing) {
         this.idDrawing = idDrawing;
+    }
+
+
+    public byte[] getFileSen() {
+        return fileSen;
+    }
+
+
+    public void setFileSen(byte[] fileSen) {
+        this.fileSen = fileSen;
     }
 
     

@@ -1,0 +1,767 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="297.000mm" height="210.000mm" viewBox="0.000000 0.000000 297.000000 210.000000" stroke-linejoin="round" stroke-linecap="round" fill="none" fill-rule="evenodd">
+  <desc>3DVIA Composer Export</desc>
+  <script type="text/ecmascript"><![CDATA[
+
+if(typeof(top) != "undefined")
+
+{
+
+	top.ShowPaper = ShowPaper;
+
+}
+
+function ShowHotSpot(evt,hotspotid)
+
+{
+
+	var svgDocument = evt.target.ownerDocument;
+
+	var strId = "hotspot."+hotspotid;
+
+	var hotspot = svgDocument.getElementById(strId);
+
+	if(hotspot)
+
+		hotspot.setAttribute("opacity",".5");
+
+}
+
+function HideHotSpot(evt,hotspotid)
+
+{
+
+	var svgDocument = evt.target.ownerDocument;
+
+	var strId = "hotspot."+hotspotid;
+
+	var hotspot = svgDocument.getElementById(strId);
+
+	if(hotspot)
+
+		hotspot.setAttribute("opacity","0");
+
+
+
+	var toolTip = svgDocument.getElementById('ToolTip');
+
+	if(toolTip)
+
+		toolTip.setAttribute("visibility","hidden");
+
+}
+
+function ShowToolTip(evt,hotspotid,strTooltip)
+
+{
+
+	if(strTooltip=="")
+
+	return;
+
+
+
+	// change text
+
+	var svgDocument = evt.target.ownerDocument;
+
+	var tiptext = svgDocument.getElementById('ToolTipText');
+
+	if( !tiptext )
+
+	return;
+
+	tiptext.firstChild.nodeValue = " " + strTooltip + "  " ;
+
+
+
+	// show tooltip before, else some refresh issue
+
+
+
+	var toolTip = svgDocument.getElementById('ToolTip');
+
+	if(!toolTip)
+
+	return;
+
+
+
+	toolTip.setAttribute("visibility","visible");
+
+	toolTip.setAttribute("opacity",".95");
+
+
+
+	// move tooltip
+
+	// get viewbox
+
+
+
+	var root = svgDocument.documentElement;
+
+	var vbox = (root.getAttribute("viewBox")).split(' ');
+
+	var x0 = parseFloat(vbox[0]);
+
+	var y0 = parseFloat(vbox[1]);
+
+	var vboxW = parseFloat(vbox[2]);
+
+	var vboxH = parseFloat(vbox[3]);
+
+
+
+	// get default width of svg
+
+
+
+	var strW = root.getAttribute("width");
+
+	var svgW = parseFloat(strW);
+
+	if(strW.indexOf('mm') != -1)
+
+	svgW *= 3.779;
+
+
+
+	var strH = root.getAttribute("height");
+
+	var svgH = parseFloat(strH);
+
+	if(strH.indexOf('mm') != -1)
+
+	svgH *= 3.779;  	// 96 dpi  -> 96/25.4 = 3.779
+
+
+
+	// update the viewbox / width / height if svg is embedded in html with zoom fit all
+
+	var realx0 = x0;
+
+	var realy0 = y0;
+
+	var realvboxW = vboxW;
+
+	var realvboxH = vboxH;
+
+	var realsvgW = svgW;
+
+	var realsvgH = svgH;
+
+
+
+	if ((typeof(top) == "undefined") || (typeof(top.svgctl1) != "undefined")) // embedded in html
+
+	{
+
+		// get window size in pxl
+
+
+
+		svgW = window.innerWidth;
+
+		svgH = window.innerHeight;
+
+
+
+		// calculate real viewbox
+
+
+
+		realsvgW = svgW;
+
+		realsvgH = svgH;
+
+		if((svgW / svgH) > (vboxW / vboxH))
+
+		{
+
+			realvboxW = (vboxH * svgW) / svgH;
+
+			realvboxH = vboxH;
+
+			realx0 = x0 - (realvboxW - vboxW)/2 ;
+
+		}
+
+		else
+
+		{
+
+			realvboxH = (vboxW * svgH) / svgW;
+
+			realvboxW = vboxW;
+
+			realy0 = y0 - (realvboxH - vboxH)/2 ;
+
+		}
+
+	}
+
+
+
+	// get user zoom/pan
+
+
+
+	var newScale = root.currentScale;
+
+	var translation = root.currentTranslate;
+
+
+
+	// transform pxl to user unit
+
+
+
+	var xPos = (((evt.clientX+10- translation.x)/newScale) * realvboxW)/realsvgW  + realx0 ;
+
+	var yPos = (((evt.clientY+5- translation.y)/newScale) * realvboxH)/ realsvgH  + realy0 ;
+
+	var scaleForWidth = ( (1 / newScale) * realvboxH) / realsvgH;
+
+
+
+	// move tooltip
+
+
+
+	toolTip.setAttribute("transform", "translate(" + xPos + "," + yPos + ")" );
+
+
+
+	// resize tooltip
+
+
+
+	var fontsize = 12;
+
+	tiptext.setAttribute("font-size",fontsize*scaleForWidth);
+
+	tiptext.setAttribute("y", fontsize*scaleForWidth);
+
+	var tipBG = svgDocument.getElementById('ToolTipBG');
+
+	var outline = tiptext.getBBox();
+
+	if(tipBG)
+
+	{
+
+		tipBG.setAttribute("stroke-width", 1*scaleForWidth);
+
+		tipBG.setAttribute("width", Number(outline.width) );
+
+		tipBG.setAttribute("height", Number(outline.height) + fontsize*.5*scaleForWidth );
+
+	}
+
+	var ToolTipShadow = svgDocument.getElementById('ToolTipShadow');
+
+	if(ToolTipShadow)
+
+	{
+
+		ToolTipShadow.setAttribute("width", Number(outline.width) );
+
+		ToolTipShadow.setAttribute("height", Number(outline.height) + fontsize*.5*scaleForWidth );
+
+		ToolTipShadow.setAttribute("x", 3*scaleForWidth);
+
+		ToolTipShadow.setAttribute("y", 3*scaleForWidth);
+
+	}
+
+}
+
+function ShowPaper()
+
+{
+
+  var svgDocument = getDocument();
+
+  var paper = svgDocument.getElementById("paperID");
+
+  if(paper)
+
+  {
+
+    paper.setAttribute("transform","scale(1)");
+
+    paper.setAttribute("opacity","1");
+
+    paper.setAttribute("visibility","visible");
+
+  }
+
+  var svg = svgDocument.getRootElement();
+
+  if(svg)
+
+  {
+
+    svg.setAttribute("width","307.000mm");
+
+    svg.setAttribute("height","220.000mm");
+
+    svg.setAttribute("viewBox","-5.000000 -5.000000 307.000000 220.000000");
+
+  }
+
+}
+
+]]></script>
+  <defs />
+  <g>
+    <g>
+      <g />
+      <g>
+        <image x="10.562660" y="21.073313" height="99.990028" width="283.084198" xlink:href="BSA038016_E43_P01_files/b74223861dc8f27a_image_0.jpg" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M173.44,112.13L187.89,112.13" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M136.42,112.13L152.06,112.13" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M154.82,111.93L154.77,110.43L150.68,112.13L154.87,113.54L154.82,112.04L159.19,111.89L159.19,111.79z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M134.06,112.04L134.08,113.54L138.21,111.93L134.04,110.43L134.06,111.94L124.55,112.07L124.55,112.18z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M172.07,112.25L172.10,113.75L176.21,112.13L172.04,110.64L172.07,112.15L168.82,112.20L168.82,112.31z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M190.66,112.15L190.68,110.64L186.51,112.13L190.63,113.75L190.65,112.25L198.42,112.38L198.43,112.28z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M85.45,81.58L85.19,114.78" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M54.57,82.10L54.82,149.78" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M92.08,81.05L92.28,149.54" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M34.52,169.54L34.52,168.04L30.38,169.60L34.52,171.15L34.52,169.64L263.25,169.39L263.25,170.90L267.40,169.34L263.25,167.79L263.25,169.29z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M250.44,144.57L250.44,143.04L246.29,144.59L250.44,146.15L250.44,144.62L263.73,144.62L263.73,146.15L267.87,144.59L263.73,143.04L263.73,144.57z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M118.60,145.73L118.57,144.20L114.45,145.81L118.62,147.31L118.60,145.78L133.46,145.57L133.48,147.10L137.61,145.48L133.44,143.99L133.46,145.52z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M155.02,144.93L154.99,143.40L150.87,145.02L155.05,146.51L155.02,144.98L171.48,144.69L171.51,146.22L175.62,144.59L171.45,143.11L171.48,144.64z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M228.27,144.40L228.28,142.88L224.12,144.39L228.25,145.99L228.26,144.46L240.96,144.58L240.94,146.11L245.11,144.59L240.97,143.00L240.96,144.53z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M190.46,144.43L190.44,142.90L186.31,144.50L190.48,146.01L190.46,144.48L218.59,144.18L218.60,145.71L222.73,144.11L218.57,142.60L218.59,144.13z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M97.02,146.25L96.99,144.72L92.88,146.37L97.06,147.83L97.02,146.30L109.13,146.03L109.16,147.56L113.27,145.91L109.09,144.45L109.13,145.98z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M80.82,111.37L80.84,112.90L84.96,111.28L80.80,109.79L80.82,111.31L71.89,111.44L71.89,111.49z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M96.62,111.26L96.68,109.73L92.48,111.14L96.56,112.84L96.62,111.31L100.78,111.46L100.78,111.41z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M59.60,146.39L59.59,144.86L55.46,146.46L59.62,147.97L59.60,146.44L87.34,146.11L87.36,147.63L91.48,146.03L87.32,144.52L87.34,146.05z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M96.04,111.33L82.58,111.14" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#000000;stroke-width:0.250;stroke-opacity:0.50;fill:#ff0000;fill-opacity:0.502" d="M34.26,146.37L34.25,144.84L30.12,146.43L34.28,147.95L34.26,146.42L50.12,146.27L50.14,147.80L54.27,146.21L50.11,144.69L50.12,146.22z" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M223.65,82.87L223.13,147.21" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M246.04,82.87L245.78,147.98" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M186.33,82.87L185.56,147.98" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M176.81,83.90L176.04,147.72" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M150.82,83.13L150.04,147.46" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M139.24,83.64L138.21,148.24" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M114.27,82.61L113.76,149.26" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M267.91,72.57L268.17,174.74" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <path style="stroke:#ff0000;stroke-width:0.250" d="M29.35,74.38L29.60,172.94" />
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff;fill-rule:evenodd" d="M0.00,0.14L0.00,210.00L296.85,210.00L296.85,0.14L0.00,0.14zM4.97,15.11L291.86,15.11L291.86,194.80L4.97,194.80L4.97,15.11z" />
+        <path style="stroke:#000000;stroke-width:0.256;stroke-dasharray:" d="M12.69,13.31L284.91,13.31" />
+        <path style="fill:#ee2922" d="M30.08,9.12L33.20,9.12L33.20,9.12L33.23,9.12L33.26,9.11L33.29,9.11L33.31,9.10L33.34,9.08L33.36,9.07L33.38,9.05L33.40,9.03L33.42,9.01L33.44,8.98L33.45,8.96L33.46,8.93L33.47,8.91L33.47,8.88L33.47,8.85L33.47,5.72L30.35,5.72L30.35,5.72L30.32,5.72L30.29,5.73L30.26,5.74L30.24,5.75L30.21,5.76L30.19,5.77L30.17,5.79L30.15,5.81L30.13,5.83L30.11,5.86L30.10,5.88L30.09,5.91L30.08,5.94L30.08,5.97L30.08,5.99L30.08,9.12z" />
+        <path style="fill:#231f20;fill-rule:evenodd" d="M41.21,7.62L41.21,7.62L41.21,7.71L41.22,7.80L41.22,7.88L41.24,7.95L41.25,8.01L41.27,8.07L41.30,8.12L41.33,8.17L41.37,8.20L41.41,8.23L41.46,8.26L41.52,8.28L41.58,8.29L41.66,8.30L41.74,8.30L42.84,8.30L42.84,8.30L42.92,8.30L43.00,8.29L43.06,8.28L43.12,8.26L43.17,8.23L43.22,8.20L43.25,8.17L43.28,8.12L43.31,8.07L43.33,8.01L43.35,7.95L43.36,7.88L43.36,7.80L43.37,7.71L43.37,7.62L43.37,7.22L43.37,7.22L43.37,7.14L43.36,7.06L43.36,6.99L43.34,6.92L43.33,6.86L43.31,6.80L43.28,6.75L43.25,6.70L43.20,6.66L43.16,6.62L43.10,6.59L43.04,6.57L42.96,6.55L42.88,6.54L42.79,6.54L41.79,6.54L41.79,6.54L41.70,6.54L41.62,6.55L41.54,6.57L41.48,6.59L41.42,6.62L41.38,6.66L41.34,6.70L41.30,6.75L41.27,6.80L41.25,6.86L41.24,6.92L41.22,6.99L41.22,7.06L41.21,7.14L41.21,7.22L41.21,7.62zM40.28,6.92L40.28,6.92L40.29,6.73L40.31,6.56L40.34,6.41L40.39,6.27L40.44,6.15L40.51,6.05L40.59,5.97L40.68,5.89L40.79,5.83L40.90,5.78L41.02,5.74L41.16,5.72L41.30,5.70L41.45,5.69L41.62,5.68L42.96,5.68L42.96,5.68L43.13,5.69L43.28,5.70L43.42,5.72L43.56,5.74L43.68,5.78L43.80,5.83L43.90,5.89L43.99,5.97L44.07,6.05L44.14,6.15L44.20,6.27L44.24,6.41L44.27,6.56L44.29,6.73L44.30,6.92L44.30,7.92L44.30,7.92L44.29,8.11L44.27,8.28L44.24,8.44L44.20,8.57L44.14,8.69L44.07,8.79L43.99,8.88L43.90,8.95L43.80,9.01L43.68,9.06L43.56,9.10L43.42,9.12L43.28,9.14L43.13,9.15L42.96,9.16L41.62,9.16L41.62,9.16L41.45,9.15L41.30,9.14L41.16,9.12L41.02,9.10L40.90,9.06L40.79,9.01L40.68,8.95L40.59,8.88L40.51,8.79L40.44,8.69L40.39,8.57L40.34,8.44L40.31,8.28L40.29,8.11L40.28,7.92L40.28,6.92z" />
+        <path style="fill:#231f20" d="M52.74,6.69L52.74,6.69L52.74,6.57L52.73,6.46L52.72,6.36L52.70,6.26L52.68,6.16L52.64,6.08L52.59,6.00L52.52,5.93L52.46,5.87L52.36,5.81L52.25,5.77L52.11,5.73L51.96,5.71L51.78,5.69L51.58,5.68L50.28,5.68L50.28,5.68L50.06,5.69L49.87,5.71L49.71,5.74L49.56,5.78L49.44,5.83L49.35,5.89L49.27,5.96L49.20,6.04L49.15,6.13L49.12,6.22L49.09,6.32L49.08,6.43L49.07,6.54L49.06,6.65L49.06,6.78L49.06,6.78L49.06,6.94L49.07,7.08L49.09,7.20L49.11,7.32L49.15,7.40L49.21,7.49L49.27,7.56L49.36,7.62L49.47,7.67L49.59,7.71L49.74,7.74L49.92,7.77L50.12,7.78L50.35,7.79L50.62,7.79L50.62,7.79L50.84,7.79L51.04,7.79L51.21,7.80L51.36,7.80L51.49,7.81L51.59,7.82L51.68,7.83L51.75,7.85L51.81,7.87L51.85,7.89L51.88,7.92L51.90,7.96L51.92,8.00L51.92,8.05L51.92,8.11L51.92,8.11L51.92,8.16L51.91,8.20L51.90,8.24L51.88,8.27L51.86,8.30L51.84,8.32L51.81,8.34L51.78,8.36L51.75,8.37L51.72,8.38L51.68,8.39L51.64,8.39L51.60,8.39L51.57,8.39L51.53,8.39L50.39,8.39L50.39,8.39L50.34,8.39L50.29,8.39L50.25,8.39L50.21,8.38L50.18,8.38L50.15,8.37L50.12,8.35L50.09,8.34L50.07,8.32L50.05,8.29L50.03,8.26L50.01,8.22L50.00,8.18L49.99,8.13L49.99,8.08L49.06,8.08L49.06,8.24L49.06,8.24L49.06,8.38L49.07,8.51L49.10,8.62L49.13,8.72L49.18,8.81L49.23,8.88L49.29,8.95L49.37,9.00L49.46,9.05L49.56,9.08L49.67,9.11L49.79,9.13L49.93,9.15L50.08,9.15L50.24,9.16L51.37,9.16L51.37,9.16L51.60,9.15L51.81,9.15L52.00,9.13L52.16,9.11L52.31,9.08L52.43,9.05L52.53,9.00L52.62,8.93L52.69,8.86L52.75,8.77L52.80,8.67L52.83,8.55L52.85,8.42L52.86,8.26L52.87,8.09L52.87,8.09L52.86,7.90L52.85,7.74L52.82,7.59L52.78,7.47L52.73,7.37L52.66,7.29L52.57,7.21L52.47,7.15L52.35,7.11L52.20,7.07L52.03,7.04L51.84,7.03L51.62,7.02L51.37,7.01L51.10,7.01L51.10,7.01L50.91,7.01L50.75,7.01L50.60,7.01L50.48,7.01L50.37,7.00L50.28,6.99L50.20,6.98L50.14,6.97L50.09,6.95L50.06,6.92L50.03,6.89L50.01,6.86L50.00,6.81L49.99,6.77L49.99,6.71L49.99,6.71L49.99,6.67L50.00,6.64L50.01,6.61L50.02,6.59L50.03,6.56L50.05,6.54L50.07,6.52L50.10,6.50L50.13,6.49L50.16,6.47L50.19,6.46L50.22,6.46L50.26,6.45L50.30,6.45L50.34,6.45L51.37,6.45L51.37,6.45L51.44,6.45L51.51,6.45L51.56,6.46L51.61,6.46L51.65,6.47L51.69,6.49L51.72,6.50L51.75,6.52L51.77,6.54L51.78,6.56L51.80,6.59L51.81,6.62L51.81,6.65L51.82,6.68L51.82,6.72L52.74,6.72L52.74,6.69z" />
+        <path style="fill:#231f20" d="M56.56,5.72L56.56,6.54L55.25,6.54L55.25,9.12L54.32,9.12L54.32,6.54L53.02,6.54L53.02,5.99L53.02,5.99L53.02,5.97L53.02,5.94L53.03,5.91L53.04,5.88L53.05,5.86L53.07,5.83L53.09,5.81L53.11,5.79L53.13,5.77L53.15,5.76L53.18,5.75L53.20,5.74L53.23,5.73L53.26,5.72L53.29,5.72L56.56,5.72z" />
+        <path style="fill:#231f20;fill-rule:evenodd" d="M47.38,8.30L45.72,8.30L45.72,7.77L47.38,7.77L47.38,7.77L47.42,7.77L47.46,7.77L47.50,7.78L47.53,7.78L47.56,7.79L47.59,7.80L47.61,7.82L47.64,7.83L47.66,7.85L47.68,7.88L47.69,7.90L47.70,7.93L47.71,7.97L47.72,8.01L47.72,8.05L47.72,8.05L47.72,8.09L47.71,8.12L47.70,8.15L47.69,8.18L47.68,8.20L47.66,8.22L47.64,8.24L47.61,8.26L47.59,8.27L47.56,8.28L47.53,8.29L47.50,8.29L47.46,8.30L47.42,8.30L47.38,8.30zM45.72,6.54L47.36,6.54L47.36,6.54L47.40,6.54L47.43,6.54L47.46,6.55L47.48,6.56L47.51,6.57L47.53,6.58L47.55,6.59L47.57,6.61L47.59,6.63L47.60,6.65L47.61,6.68L47.62,6.71L47.63,6.74L47.63,6.77L47.63,6.81L47.63,6.81L47.63,6.85L47.63,6.88L47.62,6.91L47.61,6.94L47.60,6.96L47.59,6.99L47.57,7.00L47.55,7.02L47.53,7.04L47.51,7.05L47.48,7.06L47.46,7.06L47.43,7.07L47.40,7.07L47.36,7.07L45.72,7.07L45.72,6.54zM48.12,7.40L48.12,7.39L48.12,7.39L48.17,7.37L48.22,7.36L48.26,7.34L48.31,7.32L48.35,7.29L48.39,7.25L48.42,7.22L48.45,7.17L48.48,7.12L48.51,7.06L48.53,6.99L48.54,6.91L48.55,6.83L48.56,6.73L48.56,6.62L48.56,6.62L48.56,6.49L48.55,6.37L48.52,6.27L48.49,6.17L48.44,6.09L48.39,6.01L48.33,5.95L48.25,5.89L48.17,5.84L48.08,5.81L47.98,5.77L47.86,5.75L47.74,5.73L47.61,5.72L47.46,5.72L45.06,5.72L45.06,5.72L45.03,5.72L45.00,5.73L44.98,5.74L44.95,5.75L44.92,5.76L44.90,5.77L44.88,5.79L44.86,5.81L44.84,5.83L44.83,5.86L44.81,5.88L44.80,5.91L44.80,5.94L44.79,5.96L44.79,5.99L44.79,9.12L47.75,9.12L47.75,9.12L47.85,9.12L47.95,9.11L48.05,9.10L48.14,9.08L48.22,9.05L48.30,9.02L48.38,8.97L48.44,8.92L48.50,8.86L48.55,8.78L48.59,8.70L48.63,8.60L48.65,8.48L48.67,8.36L48.67,8.22L48.67,8.22L48.67,8.12L48.66,8.02L48.65,7.94L48.64,7.86L48.62,7.79L48.59,7.72L48.56,7.66L48.53,7.61L48.49,7.56L48.44,7.52L48.39,7.49L48.33,7.46L48.27,7.43L48.19,7.42L48.12,7.40z" />
+        <path style="fill:#231f20;fill-rule:evenodd" d="M38.63,8.30L36.96,8.30L36.96,7.77L38.63,7.77L38.63,7.77L38.66,7.77L38.70,7.77L38.74,7.78L38.77,7.78L38.80,7.79L38.83,7.80L38.86,7.82L38.88,7.83L38.90,7.85L38.92,7.88L38.93,7.90L38.94,7.93L38.95,7.97L38.96,8.01L38.96,8.05L38.96,8.05L38.96,8.09L38.95,8.12L38.94,8.15L38.93,8.18L38.92,8.20L38.90,8.22L38.88,8.24L38.86,8.26L38.83,8.27L38.80,8.28L38.77,8.29L38.74,8.29L38.70,8.30L38.66,8.30L38.63,8.30zM36.96,6.54L38.60,6.54L38.60,6.54L38.64,6.54L38.67,6.54L38.70,6.55L38.73,6.56L38.75,6.57L38.77,6.58L38.80,6.59L38.81,6.61L38.83,6.63L38.84,6.65L38.86,6.68L38.86,6.71L38.87,6.74L38.88,6.77L38.88,6.81L38.88,6.81L38.88,6.85L38.87,6.88L38.86,6.91L38.86,6.94L38.84,6.96L38.83,6.99L38.81,7.00L38.80,7.02L38.77,7.04L38.75,7.05L38.73,7.06L38.70,7.06L38.67,7.07L38.64,7.07L38.60,7.07L36.96,7.07L36.96,6.54zM39.36,7.40L39.36,7.39L39.36,7.39L39.41,7.37L39.46,7.36L39.50,7.34L39.55,7.32L39.59,7.29L39.63,7.25L39.66,7.22L39.69,7.17L39.72,7.12L39.75,7.06L39.77,6.99L39.78,6.91L39.80,6.83L39.80,6.73L39.81,6.62L39.81,6.62L39.80,6.49L39.79,6.37L39.76,6.27L39.73,6.17L39.69,6.09L39.63,6.01L39.57,5.95L39.50,5.89L39.41,5.84L39.32,5.81L39.22,5.77L39.10,5.75L38.98,5.73L38.85,5.72L38.70,5.72L36.30,5.72L36.30,5.72L36.27,5.72L36.24,5.73L36.22,5.74L36.19,5.75L36.17,5.76L36.14,5.77L36.12,5.79L36.10,5.81L36.08,5.83L36.07,5.86L36.05,5.88L36.04,5.91L36.04,5.94L36.03,5.96L36.03,5.99L36.03,9.12L38.99,9.12L38.99,9.12L39.09,9.12L39.19,9.11L39.29,9.10L39.38,9.08L39.47,9.05L39.55,9.02L39.62,8.97L39.68,8.92L39.74,8.86L39.79,8.78L39.84,8.70L39.87,8.60L39.89,8.48L39.91,8.36L39.91,8.22L39.91,8.22L39.91,8.12L39.91,8.02L39.90,7.94L39.88,7.86L39.86,7.79L39.84,7.72L39.81,7.66L39.77,7.61L39.73,7.56L39.68,7.52L39.63,7.49L39.57,7.46L39.51,7.43L39.44,7.42L39.36,7.40z" />
+        <path style="stroke:#000000;stroke-width:0.256;stroke-dasharray:" d="M12.69,196.81L284.91,196.81" />
+        <path style="stroke:#000000;stroke-width:0.141;stroke-opacity:0.00;stroke-dasharray:" d="M0.14,0.00L0.14,209.83" />
+        <path style="stroke:#000000;stroke-width:0.141;stroke-opacity:0.00;stroke-dasharray:" d="M296.72,0.00L296.72,209.83" />
+        <path style="stroke:#000000;stroke-width:0.141;stroke-opacity:0.00" d="M0.14,209.83L297.00,209.83" />
+        <path style="stroke:#000000;stroke-width:0.141;stroke-opacity:0.00" d="M0.14,0.28L297.00,0.28" />
+        <path style="stroke:#000000;stroke-width:0.141;stroke-opacity:0.00" d="M0.14,209.83L297.00,209.83" />
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M155.00,198.00L157.61,198.00L157.61,202.51L155.00,202.51z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="155.56" y="201.10" font-size="2.43" opacity="1.00" font-family="Arial">F</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="30.56" y="201.10" font-size="2.79" opacity="1.00" font-family="Arial">LOCALISATION DES PARTIES</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M170.00,198.00L174.72,198.00L174.72,202.51L170.00,202.51z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="170.56" y="201.10" font-size="2.59" opacity="1.00" font-family="Arial">1/1</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M120.00,198.00L142.45,198.00L142.45,202.51L120.00,202.51z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="120.56" y="201.10" font-size="2.78" opacity="1.00" font-family="Arial">BSA038016_E43</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="30.56" y="204.60" font-size="2.78" opacity="1.00" font-family="Arial">LOCATIONOF SECTIONS</text>
+      </g>
+    </g>
+    <g />
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M29.47,176.05L63.21,176.05L63.21,182.26L29.47,182.26z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="30.25" y="180.32" font-size="3.82" opacity="1.00" font-family="Arial Narrow">* OPTION / VARIANTE</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M29.47,182.22L64.94,182.22L64.94,188.43L29.47,188.43z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="30.25" y="186.49" font-size="3.82" opacity="1.00" font-family="Arial Narrow">* OPTIONAL / VARIANT</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M39.43,133.33L45.67,133.33L45.67,138.97L39.43,138.97z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="40.14" y="137.21" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E50</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M70.87,133.18L77.10,133.18L77.10,138.83L70.87,138.83z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="71.57" y="137.06" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E40</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M71.64,99.07L77.88,99.07L77.88,104.72L71.64,104.72z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="72.35" y="102.95" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E30</text>
+      </g>
+    </g>
+    <g>
+      <g />
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M124.19,99.74L130.43,99.74L130.43,105.38L124.19,105.38z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="124.90" y="103.62" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E16</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M121.43,132.17L127.67,132.17L127.67,137.81L121.43,137.81z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="122.14" y="136.05" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E22</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M201.54,131.66L207.78,131.66L207.78,137.31L201.54,137.31z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="202.25" y="135.54" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E20</text>
+      </g>
+    </g>
+    <g>
+      <g />
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M253.60,130.67L259.84,130.67L259.84,136.31L253.60,136.31z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="254.30" y="134.55" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E10</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M106.37,133.45L108.81,133.45L108.81,139.09L106.37,139.09z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="107.08" y="137.33" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M128.14,119.11L130.57,119.11L130.57,124.76L128.14,124.76z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="128.84" y="122.99" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M128.11,132.96L130.54,132.96L130.54,138.60L128.11,138.60z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="128.82" y="136.84" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M99.71,133.13L105.95,133.13L105.95,138.77L99.71,138.77z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="100.42" y="137.01" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E23</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M150.69,157.22L156.92,157.22L156.92,162.86L150.69,162.86z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="151.39" y="161.10" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E00</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M157.24,157.20L159.67,157.20L159.67,162.85L157.24,162.85z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="157.95" y="161.08" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M77.93,99.36L80.36,99.36L80.36,105.00L77.93,105.00z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="78.63" y="103.24" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M197.22,101.95L199.65,101.95L199.65,107.59L197.22,107.59z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="197.92" y="105.83" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M230.95,118.16L237.19,118.16L237.19,123.81L230.95,123.81z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="231.66" y="122.04" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E28</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M230.75,105.36L236.99,105.36L236.99,111.00L230.75,111.00z" />
+        <text xml:space="preserve" fill="#0000ff" stroke-width="0" x="231.46" y="109.23" font-size="3.31" opacity="1.00" font-family="Arial Narrow">E24</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M237.29,130.83L239.72,130.83L239.72,136.48L237.29,136.48z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="237.99" y="134.71" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M237.09,118.36L239.52,118.36L239.52,124.00L237.09,124.00z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="237.79" y="122.24" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M237.48,105.30L239.92,105.30L239.92,110.94L237.48,110.94z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="238.19" y="109.18" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g>
+      <g />
+      <g>
+        <path style="fill:#ffffff" d="M165.10,132.81L167.53,132.81L167.53,138.46L165.10,138.46z" />
+        <text xml:space="preserve" fill="#000000" stroke-width="0" x="165.80" y="136.69" font-size="3.19" opacity="1.00" font-family="Arial Narrow">*</text>
+      </g>
+    </g>
+    <g />
+    <g id="paperID" visibility="hidden" opacity="0.00" transform="scale(0.000100)">
+      <path style="stroke:#000000;stroke-width:0.500;fill:#e6e6e6;fill-rule:evenodd" d="M-2000.00,-2000.00L2297.00,-2000.00L2297.00,2210.00L-2000.00,2210.00zM0.00,0.00L297.00,0.00L297.00,210.00L0.00,210.00z" />
+      <path style="fill:#000000;fill-opacity:0.118" d="M3.00,210.00L297.00,210.00L297.00,3.00L300.00,3.00L300.00,213.00L3.00,213.00z" />
+    </g>
+    <g id="hotspot.0" onmouseover="ShowHotSpot(evt,'0')" onmouseout="HideHotSpot(evt,'0')" onmousemove="ShowToolTip(evt,'0',&quot;E50&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M45.65,138.61L39.59,138.61L39.59,133.14L45.65,133.14z" />
+      </a>
+    </g>
+    <g id="hotspot.1" onmouseover="ShowHotSpot(evt,'1')" onmouseout="HideHotSpot(evt,'1')" onmousemove="ShowToolTip(evt,'1',&quot;E20&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M207.81,137.13L201.75,137.13L201.75,131.66L207.81,131.66z" />
+      </a>
+    </g>
+    <g id="hotspot.5" onmouseover="ShowHotSpot(evt,'5')" onmouseout="HideHotSpot(evt,'5')" onmousemove="ShowToolTip(evt,'5',&quot;E22&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M127.62,137.42L121.56,137.42L121.56,131.96L127.62,131.96z" />
+      </a>
+    </g>
+    <g id="hotspot.6" onmouseover="ShowHotSpot(evt,'6')" onmouseout="HideHotSpot(evt,'6')" onmousemove="ShowToolTip(evt,'6',&quot;E24&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M236.92,110.69L230.86,110.69L230.86,105.23L236.92,105.23z" />
+      </a>
+    </g>
+    <g id="hotspot.7" onmouseover="ShowHotSpot(evt,'7')" onmouseout="HideHotSpot(evt,'7')" onmousemove="ShowToolTip(evt,'7',&quot;E40&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M77.13,138.61L71.07,138.61L71.07,133.14L77.13,133.14z" />
+      </a>
+    </g>
+    <g id="hotspot.8" onmouseover="ShowHotSpot(evt,'8')" onmouseout="HideHotSpot(evt,'8')" onmousemove="ShowToolTip(evt,'8',&quot;E00&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M156.73,162.67L150.67,162.67L150.67,157.20L156.73,157.20z" />
+      </a>
+    </g>
+    <g id="hotspot.9" onmouseover="ShowHotSpot(evt,'9')" onmouseout="HideHotSpot(evt,'9')" onmousemove="ShowToolTip(evt,'9',&quot;E10&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M259.79,135.94L253.73,135.94L253.73,130.47L259.79,130.47z" />
+      </a>
+    </g>
+    <g id="hotspot.10" onmouseover="ShowHotSpot(evt,'10')" onmouseout="HideHotSpot(evt,'10')" onmousemove="ShowToolTip(evt,'10',&quot;E23&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M105.94,138.61L99.88,138.61L99.88,133.14L105.94,133.14z" />
+      </a>
+    </g>
+    <g id="hotspot.11" onmouseover="ShowHotSpot(evt,'11')" onmouseout="HideHotSpot(evt,'11')" onmousemove="ShowToolTip(evt,'11',&quot;E30&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M77.73,104.46L71.66,104.46L71.66,98.99L77.73,98.99z" />
+      </a>
+    </g>
+    <g id="hotspot.12" onmouseover="ShowHotSpot(evt,'12')" onmouseout="HideHotSpot(evt,'12')" onmousemove="ShowToolTip(evt,'12',&quot;E28&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M237.22,123.46L231.15,123.46L231.15,118.00L237.22,118.00z" />
+      </a>
+    </g>
+    <g id="hotspot.14" onmouseover="ShowHotSpot(evt,'14')" onmouseout="HideHotSpot(evt,'14')" onmousemove="ShowToolTip(evt,'14',&quot;E16&quot;)" opacity="0">
+      <a xlink:href="">
+        <path style="fill:#ff8000;fill-rule:evenodd" d="M130.30,105.05L124.23,105.05L124.23,99.58L130.30,99.58z" />
+      </a>
+    </g>
+    <g id="ToolTip" visibility="hidden" opacity="0" transform="translate(0,0)">
+      <rect id="ToolTipShadow" opacity="0.20" fill="black" stroke="none" x="0" y="0" width="30" height="8" />
+      <rect id="ToolTipBG" fill="#ffffe1" stroke="black" x="0" y="0" width="30" height="8" />
+      <text xml:space="preserve" id="ToolTipText" fill="black" x="0" y="0" width="30" height="8">tooltip</text>
+    </g>
+  </g>
+</svg>
