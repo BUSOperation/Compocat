@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,7 +49,16 @@ public class SpSvgService {
     @Autowired
     SpPageRepository pageRepository;
 
+    private File saveAsSen(File svgFile, String outputName) throws IOException {
 
+        File fSen = new File("src/main/resources/"+outputName+".sen");
+        FileWriter fw = new FileWriter(fSen, StandardCharsets.UTF_8);
+        
+        fw.write("00872002430087800252N1");  //info de base 
+        fw.close();
+
+        return fSen;
+    }
 
      public File saveAsJPEG (File svg, String outputName) throws Exception {
 
@@ -176,6 +187,9 @@ public class SpSvgService {
 
         // create Jpg
         File jpgFile = saveAsJPEG(svgFile,page.getIdPage());
+
+        //create sen
+        File senFile = saveAsSen(svgFile,page.getIdPage());
         
         InputStream is = new FileInputStream(jpgFile);
         page.setFileJpg(is.readAllBytes());
@@ -201,6 +215,9 @@ public class SpSvgService {
         System.out.println("Process Svg terminé avec succès");
 
     }
+
+
+    
 
 
     public void analyzeSvg(NodeList enf,String typeSvg) {
