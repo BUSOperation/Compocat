@@ -11,6 +11,7 @@ public interface SpDocMetaRepository extends CrudRepository<SpDocMeta,UUID>{
 
     public boolean existsByRefDoc(String refDoc);
     public List<SpDocMeta> findByrefDocTypeAndRefDocAndRefDocPartAndRefDocVersion(String refDocType, String refDoc, String refDocPart, String refDocVersion);
+    public List<SpDocMeta> findByRefDoc(String refDoc);
     //@Query("SELECT CAST(COUNT(1) AS BIT) from spDocMeta")
     //public boolean existsByRefDoc(String refDocType, String refDoc, String refDocPart, String refDocVersion);
     

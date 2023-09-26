@@ -81,6 +81,7 @@ public class WatchCaptureService {
                                 } 
                                 else if(item.isDirectory()) {
                                     System.out.format("Nom du répertoir: %s%n", item.getName()); 
+
                                     if (item.getName().equals("svg")) {
                                         File dirSvg = new File(DIR_CAPTURE+fileName+"\\svg");
                                         File[] listeSvg = dirSvg.listFiles();
@@ -101,6 +102,18 @@ public class WatchCaptureService {
                                         }
 
                                         
+                                    }
+                                    
+                                    if (item.getName().equals("pdf")) {
+                                        File dirPdf = new File(DIR_CAPTURE+fileName+"\\pdf");
+                                        File[] listePdf = dirPdf.listFiles();
+                                        for (File itemPdf : listePdf) {
+                                            File dest = new File(DIR_CAPTURE+fileName+"\\pdf\\"+itemPdf.getName());
+                                            if (itemPdf.renameTo(dest)) {
+                                                sendFileToUrl(dest, URI.create(SERVER_CAPTURE + "capturePdf"));
+                                            }
+                                        }                                       
+
                                     }
                                 } 
                             }

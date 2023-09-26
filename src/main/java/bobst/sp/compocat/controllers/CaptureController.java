@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import bobst.sp.compocat.services.SpBsaService;
 import bobst.sp.compocat.services.SpGenService;
 import bobst.sp.compocat.services.SpPageService;
+import bobst.sp.compocat.services.SpPdfService;
 import bobst.sp.compocat.services.SpSvgService;
 
 
@@ -30,6 +31,9 @@ public class CaptureController {
 
     @Autowired
     SpGenService spGenService;
+
+    @Autowired
+    SpPdfService spPdfService;
 
     
     @GetMapping("/doc")
@@ -92,6 +96,17 @@ public class CaptureController {
      public String processSvg(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
         try {
             spSvgService.uploadSvg(file);
+        } catch (Exception e) {
+        }
+        //informLog(file,status);
+        return "redirect:/capture";
+    }
+    
+
+    @PostMapping("/capturePdf")
+     public String processPdf(@RequestParam("file") MultipartFile file) throws IllegalStateException, IOException {
+        try {
+            spPdfService.uploadPdf(file);
         } catch (Exception e) {
         }
         //informLog(file,status);

@@ -33,9 +33,15 @@ public class SpDocMetaService {
         if (docMetaList.size()>0) {
             docMeta = docMetaList.get(0);
         } else {
+            docMetaList = spDocMetaRepository.findByRefDoc(refDoc);
+            if (docMetaList.size()>0) {
+                docMeta = docMetaList.get(0);
+            } else {
+
             docMeta = new SpDocMeta(refDocType, refDoc, refDocPart, refDocVersion, 
                                     langCode, initialCode, title, sub_title, compl_info, status, validityStart, otp);
             spDocMetaRepository.save(docMeta);
+            }
         }
 
         return docMeta;

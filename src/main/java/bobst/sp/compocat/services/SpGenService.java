@@ -6,8 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,6 +80,11 @@ public class SpGenService {
 
         //create itemParent pour Localisation des parties
         SpItem itemP = spItemService.createItem("GENV21G026", "LOCALISATION DES PARTIES", "LOCATION OF SECTIONS", "");
+
+        //create bom for Localisation des parties
+        //créer un objet docBom
+        spDocBomService.createDocBom(docP.getIdDoc(), "", itemP.getIdItem(), true, 0, "", "1", "0", "");
+        
 
         try (OutputStream os = new FileOutputStream(csvFile)) {
             os.write(file.getBytes());
@@ -164,10 +167,10 @@ public class SpGenService {
                 SpDocBom bomSection = spDocBomService.createDocBom(docP.getIdDoc(),itemP.getIdItem(),itemSection.getIdItem(),true,itemOrder,"1",lvlSection,"","");
                 
                 //create id_drawing
-                if (!drawing.isEmpty()) {
-                    SpDocMeta docDrawing = spDocMetaService.createDocMeta("", drawing, "", drawingVersion, "", "","","","","","","");
-                    SpLinkItemDrawing linkItem = spLinkItemDrawingService.createLinkItemDrawing(itemSection.getIdItem(), docDrawing.getIdDoc());               
-                }
+                //if (!drawing.isEmpty()) {
+                    //SpDocMeta docDrawing = spDocMetaService.createDocMeta("", drawing, "", drawingVersion, "", "","","","","","","");
+                    //SpLinkItemDrawing linkItem = spLinkItemDrawingService.createLinkItemDrawing(itemSection.getIdItem(), docDrawing.getIdDoc());               
+                //}
 
                 section = actualSection;
             }
@@ -188,7 +191,9 @@ public class SpGenService {
                 //create id_drawing
                 if (!drawing.isEmpty()) {
                     SpDocMeta docDrawing = spDocMetaService.createDocMeta("", drawing, "", drawingVersion, "", "","","","","","","");
-                    SpLinkItemDrawing linkItem = spLinkItemDrawingService.createLinkItemDrawing(itemSequence.getIdItem(), docDrawing.getIdDoc());               
+                    //SpLinkItemDrawing linkItem = spLinkItemDrawingService.createLinkItemDrawing(itemSequence.getIdItem(), docDrawing.getIdDoc());               
+                    //lier le dessin à la section
+                    SpLinkItemDrawing linkItem = spLinkItemDrawingService.createLinkItemDrawing(itemSection.getIdItem(), docDrawing.getIdDoc()); 
                 }
 
                 sequence = actualSequence;
@@ -206,6 +211,12 @@ public class SpGenService {
                 //create bom
                 SpDocBom bomParts = spDocBomService.createDocBom(docP.getIdDoc(), itemSequence.getIdItem(), itemParts.getIdItem(), true, itemOrder, lvlSequence, lvlParts, fullIndex.split(":")[2], "");
 
+                //create id_drawing
+                if (!drawing.isEmpty()) {
+                    SpDocMeta docDrawing = spDocMetaService.createDocMeta("", drawing, "", drawingVersion, "", "","","","","","","");
+                    //lier le dessin à la sequence
+                    SpLinkItemDrawing linkItem = spLinkItemDrawingService.createLinkItemDrawing(itemSequence.getIdItem(), docDrawing.getIdDoc()); 
+                }
 
             } 
             
