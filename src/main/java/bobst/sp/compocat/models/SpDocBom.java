@@ -22,6 +22,7 @@ public class SpDocBom {
     private String levelItem;
     private String repere;
     private String validity;
+    private String idDrawing;
     
     public SpDocBom() {}
 
@@ -121,6 +122,14 @@ public class SpDocBom {
 
     public void setValidity(String validity) {
         this.validity = validity;
+    }
+
+    public String getIdDrawing() {
+        return idDrawing;
+    }
+
+    public void setIdDrawing(String idDrawing) {
+        this.idDrawing = idDrawing;
     }
 
 

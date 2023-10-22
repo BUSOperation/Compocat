@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -163,27 +164,26 @@ public class SpSvgService {
 
     }
 
-    
+
+     
 
 
     public void uploadSvg(MultipartFile file) throws Exception {
 
         String fName = file.getOriginalFilename().substring(0,file.getOriginalFilename().lastIndexOf("."));
-        String[] tab = fName.split("_");
-        
+                
         // create or update docMeta
         SpDocMeta docMeta = docMetaService.createDocMeta("",fName,"","","","","","","","","","");  
         SpPage page = pageService.createPage(docMeta.getIdDoc(), docMeta.getIdDoc()+"_1");  
+              
         
-        
+        File svgFile = new File("src/main/resources/work/" + file.getOriginalFilename());
+      
 
-
-        File svgFile = new File("src/main/resources/" + file.getOriginalFilename());
-
-        try (OutputStream os = new FileOutputStream(svgFile)) {
-            os.write(file.getBytes());
-            os.close();
-        }
+         try (OutputStream os = new FileOutputStream(svgFile)) {
+             os.write(file.getBytes());
+             os.close();
+         }
 
         // create Jpg
         File jpgFile = saveAsJPEG(svgFile,page.getIdPage());

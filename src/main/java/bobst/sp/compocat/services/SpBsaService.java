@@ -76,6 +76,9 @@ public class SpBsaService {
     private String path;
     private SpPage pg;
 
+    private String identPage = "";
+    private String identGoc = "";
+
 
     public void uploadE43Xml(MultipartFile file) throws ParserConfigurationException, SAXException, IllegalStateException, IOException {
 
@@ -650,7 +653,7 @@ public class SpBsaService {
                         //créer un objet docBom
                         this.cptItem++;
                         path = pathParent + "." + getLevel(level);
-                        docBomService.createDocBom(this.docMeta.getIdDoc(), this.itemM.getIdItem(), this.item.getIdItem(), true, this.cptItem,pathParent,path, tabAttr[1], "");
+                        SpDocBom docBom = docBomService.createDocBom(this.docMeta.getIdDoc(), this.itemM.getIdItem(), this.item.getIdItem(), true, this.cptItem,pathParent,path, tabAttr[1], "");
 
                         String numPage = tabAttr[0];
                         if (!numPage.equals("")) {
@@ -662,7 +665,10 @@ public class SpBsaService {
                                                         "", "", "", "");
 
                             //créer un objet link drawing item si numpage
-                            linkItemDrawingService.createLinkItemDrawing(this.item.getIdItem(), docMetaD.getIdDoc());
+                            //linkItemDrawingService.createLinkItemDrawing(this.item.getIdItem(), docMetaD.getIdDoc());
+                            //add drawing on doc_bom
+                            docBom.setIdDrawing(docMetaD.getIdDoc());
+                            spDocBomRepository.save(docBom);
 
                             //créer un objet page
                             SpPage pg1;
@@ -685,31 +691,45 @@ public class SpBsaService {
                 if (node.hasAttributes()) {
                     //0=numpage,1=ident,2=desFr,3=desEn,4=desDe
                     String[] tabAttr = getAttributesPV(node);
+                    identPage = tabAttr[1];
 
+                    
                     if (!tabAttr[1].equals("")) {
                         //traitement uniquement si ident existe
+                        
+                        //identification du Goc représenté sur la page
+                        if (identPage.contains("-")) {
+                            identGoc = identPage.substring(0,identPage.lastIndexOf("-"));
+                        } else {
+                            identGoc = identPage; //traitment ancien PV
+                        }
+                                            
                         level++;
   
                         //créer un objet item
                         this.item = itemService.createItem(tabAttr[1], tabAttr[2], tabAttr[3], tabAttr[4]);
+                        //this.item = itemService.createItem(identGoc, tabAttr[2], tabAttr[3], tabAttr[4]);
                         this.itemP = this.item;
 
                         //créer un objet docBom
                         this.cptItem++;
                         path = pathParent + "." + getLevel(level);
-                        docBomService.createDocBom(this.docMeta.getIdDoc(), this.itemPM.getIdItem(), this.item.getIdItem(), true, this.cptItem,pathParent, path, tabAttr[1], "");
+                        SpDocBom docBom = docBomService.createDocBom(this.docMeta.getIdDoc(), this.itemPM.getIdItem(), this.item.getIdItem(), true, this.cptItem,pathParent, path, tabAttr[1], "");
+                        //SpDocBom docBom = docBomService.createDocBom(this.docMeta.getIdDoc(), this.itemPM.getIdItem(), this.item.getIdItem(), true, this.cptItem,pathParent, path, identGoc, "");
 
                         String numPage = tabAttr[0];
                         if (!numPage.equals("")) {
 
                             //créer un objet doc drawing si numpage
-                            //SpDocMeta docMetaD;
                             this.docMetaD = docMetaService.createDocMeta("", docMetaService.getNormalizedDocName(this.docMeta) + "_" + numPage, 
                                                         "", "", "", "", "", "",
                                                         "", "", "", "");
 
                             //créer un objet link drawing item si numpage
-                            linkItemDrawingService.createLinkItemDrawing(this.item.getIdItem(), this.docMetaD.getIdDoc());
+                            //linkItemDrawingService.createLinkItemDrawing(this.item.getIdItem(), this.docMetaD.getIdDoc());
+                            //add drawing to docBom
+                            docBom.setIdDrawing(this.docMetaD.getIdDoc());
+                            spDocBomRepository.save(docBom);
 
                              //créer un objet page
                             SpPage pg1;
@@ -741,7 +761,11 @@ public class SpBsaService {
 
                             if (!pieceAttrNode.getFirstChild().getNodeValue().isBlank())  {
 
-                                if(pieceAttrNode.getNodeName().equals("id")) {id=pieceAttrNode.getFirstChild().getNodeValue();}
+                                if(pieceAttrNode.getNodeName().equals("id")) {
+                                    id=pieceAttrNode.getFirstChild().getNodeValue();
+                                    //l' id est identifié par la page + le repère 
+                                    //if (identPage.contains("-")) id = identPage.substring(identPage.lastIndexOf("-"), identPage.length()) + "-" + id;
+                                }
                                 if(pieceAttrNode.getNodeName().equals("numident")) {numident=pieceAttrNode.getFirstChild().getNodeValue();}
                                 if(pieceAttrNode.getNodeName().equals("numbobst")) {
                                     numbobst=pieceAttrNode.getFirstChild().getNodeValue();
