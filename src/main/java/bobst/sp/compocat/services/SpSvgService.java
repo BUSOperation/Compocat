@@ -50,6 +50,13 @@ public class SpSvgService {
     @Autowired
     SpPageRepository pageRepository;
 
+    @Autowired
+    SpStorageService storageService;
+
+
+    
+
+
     private File saveAsSen(File svgFile, String outputName) throws IOException {
 
         File fSen = new File("src/main/resources/"+outputName+".sen");
@@ -185,15 +192,28 @@ public class SpSvgService {
              os.close();
          }
 
+        // save svg in storage
+        storageService.storeFile("svg", svgFile); 
+
         // create Jpg
         File jpgFile = saveAsJPEG(svgFile,page.getIdPage());
 
+        //save jpg in storage
+        storageService.storeFile("jpg", jpgFile);
+
+        //save jpg in DB
+        //InputStream is = new FileInputStream(jpgFile);
+        //page.setFileJpg(is.readAllBytes());
+        //pageRepository.save(page);  
+
         //create sen
         File senFile = saveAsSen(svgFile,page.getIdPage());
+        storageService.storeFile("sen", senFile);
+
+        svgFile.delete();
+        jpgFile.delete();
+        senFile.delete();
         
-        InputStream is = new FileInputStream(jpgFile);
-        page.setFileJpg(is.readAllBytes());
-        pageRepository.save(page);        
         
         
         // Instantiate the Factory

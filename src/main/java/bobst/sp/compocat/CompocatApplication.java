@@ -13,7 +13,7 @@ public class CompocatApplication {
 
 	public static void main(String[] args) throws IllegalStateException, InterruptedException, ParserConfigurationException, SAXException {
 		SpringApplication.run(CompocatApplication.class, args);
-		WatchCaptureService.run();
+		//WatchCaptureService.run();
 	}
 
 }

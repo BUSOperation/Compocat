@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import bobst.sp.compocat.services.SpBsaService;
 import bobst.sp.compocat.services.SpPageService;
+import bobst.sp.compocat.services.SpStorageService;
 
 @RestController
 public class ViewerController {
@@ -18,6 +19,9 @@ public class ViewerController {
 
     @Autowired
     SpPageService spPageService;
+
+    @Autowired
+    SpStorageService spStorageService;
 
     @GetMapping("/test")
     public String getTest() {
@@ -30,12 +34,11 @@ public class ViewerController {
 
 
     @GetMapping("/extractJpg")
-    public void getJpg() {
-        try {
-            spPageService.extractJpg("862a43de-ccb6-422d-a4f4-45017440b2b7_1");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } 
+    public String getJpg() {
+        
+            spStorageService.extractFile("jpg", "0b226c8e-c0f7-40f9-bad2-88243535985c_1.jpg" );
+            //spPageService.extractJpg("862a43de-ccb6-422d-a4f4-45017440b2b7_1");
+            return ("Extract jpg");
     }
     
 }
